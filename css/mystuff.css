@@ -1,0 +1,25 @@
+.files-container, .folders-container{
+    display: flex;
+    flex-wrap: wrap;
+    padding: 10px;
+}
+
+.file-card{
+    padding: 10px;
+    margin: 10px;
+    width: 200px;
+    border: 1px solid #616161;
+    border-radius: 10px;
+}
+
+.btn-download{
+    width: 100%;
+}
+
+.btn-folder{
+    margin: 10px;
+}
+
+.placeholder{
+    height: 200px;
+}
