@@ -30,8 +30,8 @@ const setupModal = data => {
 
     modalTitle.innerText = data.title || "Main modal";
     modalText.innerText = data.text || "Modal text";
-    modalExtraElements.innerHTML = "";
-    modalInputs.innerHTML = "";
+    modalExtraElements.innerHTML = null;
+    modalInputs.innerHTML = null;
     if (data.extraElements){
         data.extraElements.forEach(domEl => {
             modalExtraElements.appendChild(domEl);

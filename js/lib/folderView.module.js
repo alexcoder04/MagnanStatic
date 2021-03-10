@@ -1,19 +1,14 @@
+import makeApiCall from "./api.module.js";
+import { addClasses, generateFAIcon } from "./utils.module.js";
+import Browser from "./browser.module.js";
+import setupContextMenu from "./fileContextMenu.module.js";
 
-const subfoldersListEl = document.querySelector("#subfolders-list");
-const elementsListEl = document.querySelector("#files-list");
+const browser = new Browser();
 
-// helper function
-const generateFAIcon = name => {
-    const domEl = document.createElement("i");
-    domEl.classList.add("fa");
-    domEl.classList.add(name);
-    return domEl;
-};
-
-const createFolderDomEl = data => {
+function createFolderEl(data){
     const domEl = document.createElement("a");
-
     addClasses(domEl, ["btn", "btn-secondary", "btn-folder"]);
+
     domEl.role = "button";
     domEl.dataset.type = "folder";
     domEl.dataset.href = data.href;
@@ -25,7 +20,6 @@ const createFolderDomEl = data => {
     const folderNameEl = document.createElement("span");
     folderNameEl.classList.add("folder-child");
     folderNameEl.innerText = data.name;
-
     domEl.appendChild(folderIcon);
     domEl.appendChild(folderNameEl);
 
@@ -35,15 +29,16 @@ const createFolderDomEl = data => {
             left: e.clientX,
             top: e.clientY
         };
-        setPosition(origin);
-        setupContextMenu(e);
+        data.contextMenu.clear();
+        data.contextMenu.setPosition(origin);
+        setupContextMenu(data.contextMenu, e);
         return false;
     });
 
     return domEl;
-};
+}
 
-const createFileDomEl = data => {
+function createFileEl(data){
     const domEl = document.createElement("li");
 
     domEl.classList.add("list-group-item");
@@ -74,53 +69,50 @@ const createFileDomEl = data => {
             left: e.clientX,
             top: e.clientY
         };
-        setPosition(origin);
-        setupContextMenu(e);
+        data.contextMenu.setPosition(origin);
+        console.log(data.contextMenu);
         return false;
     });
 
     fileNameEl.addEventListener("click", () => {
-        openTab(data.fileOpenHref);
+        browser.openTab(data.fileOpenHref);
     });
 
     return domEl;
 };
 
-const representFolderContent = data => {
-    data.folders.forEach(subfolder => {
-        const folderEl = createFolderDomEl({
-            href: `${currentPath}/${subfolder.name}`,
-            name: subfolder.name
-        });
-        subfoldersListEl.appendChild(folderEl);
+export async function loadElementsIn(path){
+    const elements = await makeApiCall({
+        route: "storage/list-folder",
+        method: "POST",
+        body: {
+            user: USERNAME,
+            path
+        }
     });
+    return elements;
+}
 
-    data.files.forEach(file => {
-        const fileEl = createFileDomEl({
-            isImage: file.is_image,
-            thumbnailHref: (file.is_image ? `/storage/thumbnail/${USERNAME}/${currentPath}/${file.name}` : null),
-            filePath: `${currentPath}/${file.name}`,
-            fileOpenHref: `/storage/file/${USERNAME}/${currentPath}/${file.name}`,
-            name: file.name
-        });
-        elementsListEl.appendChild(fileEl);
-    });
-};
-
-const loadFolderContent = () => {
+export function showFolderContent(elements, contextMenu){
+    const subfoldersListEl = document.querySelector("#subfolders-list");
+    const elementsListEl = document.querySelector("#files-list");
     subfoldersListEl.innerHTML = null;
     elementsListEl.innerHTML = null;
-
-    apiCall(
-        "storage/list-folder",
-        "POST",
-        {
-            user: username,
-            path: currentPath
-        },
-        representFolderContent,
-        false
-    );
-};
-
-loadFolderContent();
+    elements.folders.forEach(subfolder => {
+        subfoldersListEl.appendChild(createFolderEl({
+            href: `${CURRENT_PATH}/${subfolder.name}`,
+            name: subfolder.name,
+            contextMenu
+        }));
+    });
+    elements.files.forEach(file => {
+        elementsListEl.appendChild(createFileEl({
+            isImage: file.is_image,
+            thumbnailHref: (file.is_image ? `/storage/thumbnail/${USERNAME}/${CURRENT_PATH}/${file.name}` : null),
+            filePath: `${CURRENT_PATH}/${file.name}`,
+            fileOpenHref: `/storage/file/${USERNAME}/${CURRENT_PATH}/${file.name}`,
+            name: file.name,
+            contextMenu
+        }));
+    });
+}

@@ -17,7 +17,7 @@ const setPosition = ({ top, left }) => {
 };
 
 const clearMenuEntries = () => {
-    menuList.innerHTML = "";
+    menuList.innerHTML = null;
 };
 
 // bigger functions
