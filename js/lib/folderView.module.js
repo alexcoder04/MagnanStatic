@@ -19,7 +19,7 @@ function createFolderEl(data){
 
     const folderNameEl = document.createElement("span");
     folderNameEl.classList.add("folder-child");
-    folderNameEl.innerText = data.name;
+    folderNameEl.innerText = " " + data.name;
     domEl.appendChild(folderIcon);
     domEl.appendChild(folderNameEl);
 
@@ -70,7 +70,8 @@ function createFileEl(data){
             top: e.clientY
         };
         data.contextMenu.setPosition(origin);
-        console.log(data.contextMenu);
+        data.contextMenu.clear();
+        setupContextMenu(data.contextMenu, e);
         return false;
     });
 
@@ -98,6 +99,12 @@ export function showFolderContent(elements, contextMenu){
     const elementsListEl = document.querySelector("#files-list");
     subfoldersListEl.innerHTML = null;
     elementsListEl.innerHTML = null;
+    if (elements.folders.length == 0 && elements.files.length == 0){
+        const domEl = document.createElement("div");
+        domEl.innerText = "This folder is empty";
+        elementsListEl.appendChild(domEl);
+        return;
+    }
     elements.folders.forEach(subfolder => {
         subfoldersListEl.appendChild(createFolderEl({
             href: `${CURRENT_PATH}/${subfolder.name}`,

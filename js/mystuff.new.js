@@ -2,6 +2,7 @@ import { loadElementsIn, showFolderContent } from "./lib/folderView.module.js";
 import ContextMenu from "./lib/contextmenu.module.js";
 import setupModal from "./lib/modal.module.js";
 import makeApiCall from "./lib/api.module.js";
+import showCurrentPath from "./lib/currentPath.module.js";
 
 const fileContextMenu = new ContextMenu();
 
@@ -11,6 +12,7 @@ async function loadAndRepresent(){
 }
 
 loadAndRepresent();
+showCurrentPath();
 
 document.getElementById("create-folder-trigger-btn").addEventListener("click", () => {
     setupModal({
@@ -19,20 +21,20 @@ document.getElementById("create-folder-trigger-btn").addEventListener("click", (
         inputs: [
             {
                 type: "text",
-                id: "new-folder-name"
+                id: "new-folder-name",
+                placeholder: "New folder"
             }
         ],
         onconfirm: async () => {
-            const folderPath = `${currentPath}/${document.getElementById("new-folder-name").value}`;
+            const folderPath = `${CURRENT_PATH}/${document.getElementById("new-folder-name").value}`;
             const res = await makeApiCall({
                 route: "storage/create-folder",
                 body: {
-                    user: username,
+                    user: USERNAME,
                     path: folderPath
                 },
             });
             loadAndRepresent();
         }
     });
-    document.getElementById("new-folder-name").value = "New folder";
 });

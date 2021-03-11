@@ -12,6 +12,7 @@ function createInputEl(data){
         domEl.type = data.type;
     }
     domEl.id = data.id;
+    domEl.placeholder = data.placeholder;
     if (data.onclick){
         domEl.addEventListener("click", data.onclick);
     }

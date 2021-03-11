@@ -5,6 +5,7 @@ import Browser from "./browser.module.js";
 import setupModal from "./modal.module.js";
 
 const browser = new Browser();
+
 export default function setupContextMenu(contextmenu, event){
     var dataset;
     if (event.target.classList.contains("folder-child")){
@@ -15,25 +16,14 @@ export default function setupContextMenu(contextmenu, event){
 
     contextmenu.addEntry("Open", (
         dataset.type == "file" ?
-        () => { openTab(`/storage/file/${USERNAME}/${dataset.href}`); }:
+        () => { browser.openTab(`/storage/file/${USERNAME}/${dataset.href}`); }:
         () => { browser.loadPage(dataset.href); }
     ));
-    contextmenu.addEntry("Delete", async () => {
-        const data = {
-            user: USERNAME,
-            path: (
-                dataset.type == "file" ?
-                `${e.target.dataset.href}`:
-                dataset.href
-            )
-        };
-        const res = await makeApiCall({
-            route: "storage/delete-" + dataset.type,
-            body: data
-        });
-        const folderContent = await loadElementsIn(CURRENT_PATH);
-        showFolderContent(folderContent, contextmenu);
-    });
+    contextmenu.addEntry("Download", (
+        dataset.type == "file"?
+            () => { browser.downloadFile(`/storage/file/${USERNAME}/${dataset.href}`); }:
+            () => { browser.openTab(`/storage/download/folder/${USERNAME}/${dataset.href}`); }
+    ));
     contextmenu.addEntry("Rename", () => {
         setupModal({
             title: "Rename " + dataset.type,
@@ -63,23 +53,42 @@ export default function setupContextMenu(contextmenu, event){
             selectFile({
                 type: "folder",
                 msg: `Choose where to move the ${dataset.type} to`,
-                callback: folderName => {
-                    const path = folderName;
-                    apiCall({
+                callback: async folderName => {
+                    const res = await makeApiCall({
                         route: "storage/move-" + dataset.type,
                         body: {
                             path: dataset.href,
-                            destination: `${path}/${dataset.href.split('/')[dataset.href.split('/').length - 1]}`,
+                            destination: `${folderName}/${dataset.href.split('/')[dataset.href.split('/').length - 1]}`,
                             user: USERNAME
                         },
                     });
+                    const folderContent = await loadElementsIn(CURRENT_PATH);
+                    showFolderContent(folderContent, contextmenu);
                 }
             });
         }
     );
-    contextmenu.addEntry("Download", (
-        dataset.type == "file"?
-            () => { downloadFile(`/storage/file/${USERNAME}/${dataset.href}`); }:
-            () => { openTab(`/storage/download/folder/${USERNAME}/${dataset.href}`); }
-    ));
+    contextmenu.addEntry("Delete", () => {
+        setupModal({
+            title: "Confirm your action",
+            text: `Do you really want to delete ${event.target.innerText}?`,
+            onconfirm: async () => {
+                const data = {
+                    user: USERNAME,
+                    path: (
+                        dataset.type == "file" ?
+                        `${event.target.dataset.href}`:
+                        dataset.href
+                    )
+                };
+                const res = await makeApiCall({
+                    route: "storage/delete-" + dataset.type,
+                    body: data
+                });
+                const folderContent = await loadElementsIn(CURRENT_PATH);
+                showFolderContent(folderContent, contextmenu);
+            }
+        });
+        
+    });
 }

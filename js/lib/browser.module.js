@@ -18,7 +18,7 @@ export default class Browser{
         element.download = href;
         document.body.appendChild(element);
         element.click();
-        document.body.removeChild(element);
+        element.remove();
     }
 }
 
