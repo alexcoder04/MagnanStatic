@@ -1,6 +1,13 @@
 .code-area{
     width: 100%;
     font-family: monospace;
-    background-color: #003030;
     color: white;
+}
+
+.code{
+    background-color: #300030;
+}
+
+.output{
+    background-color: #003030;
 }

@@ -6,7 +6,13 @@ export default async function makeApiCall(data){
     if (getCookie("sessid")){
         data.body.sessid = getCookie("sessid");
     }
-    const res = await fetch("/api/" + data.route, {
+    let url;
+    if (data.external){
+        url = data.route
+    } else {
+        url = "/api/" + data.route;
+    }
+    const res = await fetch(url, {
         method: data.method || "POST",
         headers: {
             "Content-Type": "application/json"
