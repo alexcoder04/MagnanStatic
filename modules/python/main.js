@@ -1,4 +1,4 @@
-import makeApiCall from "../lib/api.module.js";
+import makeApiCall from "../../js/lib/api.module.js";
 
 document.getElementById("code-run").addEventListener("click", async () => {
     const data = await makeApiCall({

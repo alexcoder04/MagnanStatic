@@ -19,6 +19,9 @@ export default function setupContextMenu(contextmenu, event){
         () => { browser.openTab(`/storage/file/${USERNAME}/${dataset.href}`); }:
         () => { browser.loadPage(dataset.href); }
     ));
+    contextmenu.addEntry("Share", () => {
+        alert("implement this!!!");
+    });
     contextmenu.addEntry("Download", (
         dataset.type == "file"?
             () => { browser.downloadFile(`/storage/file/${USERNAME}/${dataset.href}`); }:
