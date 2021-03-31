@@ -3,8 +3,21 @@ import selectFile from "./fileSelect.module.js";
 import { loadElementsIn, showFolderContent } from "./folderView.module.js";
 import Browser from "./browser.module.js";
 import setupModal from "./modal.module.js";
+import { addClasses } from "./utils.module.js";
 
 const browser = new Browser();
+
+async function getLinkFor(href){
+    const link = await makeApiCall({
+        route: "storage/share",
+        body: {
+            path: href,
+            user: USERNAME
+        },
+        method: "POST"
+    });
+    return link.link;
+}
 
 export default function setupContextMenu(contextmenu, event){
     var dataset;
@@ -20,7 +33,56 @@ export default function setupContextMenu(contextmenu, event){
         () => { browser.loadPage(dataset.href); }
     ));
     contextmenu.addEntry("Share", () => {
-        alert("implement this!!!");
+        if (dataset.type == "folder"){
+            alert("You cannot share folders yet!");
+            return;
+        }
+        const selectBox = document.createElement("select");
+        selectBox.id = "share-options-select";
+        const shareWithAll = document.createElement("option");
+        shareWithAll.innerText = "Share with everybody who has the link";
+        shareWithAll.value = "link";
+        const shareWithUsers = document.createElement("option");
+        shareWithUsers.innerText = "Share with specific users";
+        shareWithUsers.value = "user";
+        selectBox.appendChild(shareWithAll); selectBox.appendChild(shareWithUsers);
+        setupModal({
+            title: "More options",
+            text: "Select some more options",
+            extraElements: [
+                selectBox
+            ],
+            onconfirm: async () => {
+                const all = selectBox.value == "link";
+                if (!all){
+                    alert("Not supported yet!")
+                    return
+                }
+                const shareLink = await getLinkFor(dataset.href);
+                const linkEl = document.createElement("input");
+                linkEl.classList.add("form-control");
+                linkEl.style.fontFamily = "monospace";
+                linkEl.style.color = "blue";
+                linkEl.setAttribute("readonly", "true");
+                linkEl.value = `${window.location.protocol}//${window.location.host}/storage/shared/${shareLink}`;
+                const linkBtn = document.createElement("button");
+                addClasses(linkBtn, ["btn", "btn-primary"])
+                linkBtn.innerText = "Click me to copy the link!";
+                linkBtn.addEventListener("click", () => {
+                    linkEl.select();
+                    document.execCommand("copy");
+                    linkBtn.innerText = "Link copied!";
+                });
+                setupModal({
+                    title: "Link",
+                    text: "Send this link to the people you want to share this file with: ",
+                    extraElements: [
+                        linkEl,
+                        linkBtn
+                    ]
+                });
+            }
+        });
     });
     contextmenu.addEntry("Download", (
         dataset.type == "file"?
@@ -92,6 +154,5 @@ export default function setupContextMenu(contextmenu, event){
                 showFolderContent(folderContent, contextmenu);
             }
         });
-        
     });
 }
