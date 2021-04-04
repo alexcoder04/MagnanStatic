@@ -84,7 +84,7 @@ function createFileEl(data){
 
 export async function loadElementsIn(path){
     const elements = await makeApiCall({
-        route: "storage/list-folder",
+        route: "storage/read/list-folder",
         method: "POST",
         body: {
             user: USERNAME,

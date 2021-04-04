@@ -4,7 +4,7 @@ import { addClasses } from "./utils.module.js";
 
 async function createFileSelectList(type, extensions){
     const data = await makeApiCall({
-        route: "storage/list-folder",
+        route: "storage/read/list-folder",
         method: "POST",
         body: {
             user: USERNAME,

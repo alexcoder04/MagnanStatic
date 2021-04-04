@@ -147,7 +147,7 @@ export default function setupContextMenu(contextmenu, event){
                     )
                 };
                 const res = await makeApiCall({
-                    route: "storage/delete-" + dataset.type,
+                    route: "storage/delete/" + dataset.type,
                     body: data
                 });
                 const folderContent = await loadElementsIn(CURRENT_PATH);
