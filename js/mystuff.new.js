@@ -29,7 +29,7 @@ createFolderTriggerBtn.addEventListener("click", () => {
             }
         ],
         onconfirm: async () => {
-            const folderPath = `${CURRENT_PATH}/${newFolderName}`;
+            const folderPath = `${CURRENT_PATH}/${document.getElementById('new-folder-name').value}`;
             const res = await makeApiCall({
                 route: "storage/create/folder",
                 body: {

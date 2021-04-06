@@ -17,6 +17,21 @@ export function generateFAIcon(name){
     return domEl;
 };
 
+export function roundDecimals(number, places=2){
+    const factor = 10 ** places;
+    return Math.round((number / 1024) * factor) / factor;
+}
+
+export function representBytes(bytes){
+    const units = ["B", "KB", "MB", "GB"];
+    for (let i = 0; i < units.length; i++){
+        if (bytes < 1024){
+            return `${bytes} ${units[i]}`;
+        }
+        bytes = roundDecimals(bytes);
+    }
+}
+
 export function getCookie(cname){
     var name = cname + "=";
     var decodedCookie = decodeURIComponent(document.cookie);

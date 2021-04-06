@@ -1,5 +1,5 @@
 import makeApiCall from "./api.module.js";
-import { addClasses, generateFAIcon } from "./utils.module.js";
+import { addClasses, generateFAIcon, representBytes } from "./utils.module.js";
 import Browser from "./browser.module.js";
 import setupContextMenu from "./fileContextMenu.module.js";
 
@@ -39,48 +39,49 @@ function createFolderEl(data){
 }
 
 function createFileEl(data){
-    const domEl = document.createElement("li");
+    console.log(data);
+    const tr = document.createElement("tr");
+    tr.classList.add("file-el");
+    let columns = [];
 
-    domEl.classList.add("list-group-item");
-
+    const col1 = document.createElement("td");
+    const imgEl = document.createElement("img");
+    imgEl.setAttribute("width", "100px"); imgEl.setAttribute("height", "100px");
     if (data.isImage){
-        const imgEl = document.createElement("img");
         imgEl.src = data.thumbnailHref;
-        imgEl.setAttribute("width", "100px"); imgEl.setAttribute("height", "100px");
-
-        domEl.appendChild(imgEl);
+    } else {
+        imgEl.src = `${STATIC_SERVER}img/file.png`;
     }
+    col1.appendChild(imgEl);
+    columns.push(col1);
 
-    const fileNameEl = document.createElement("button");
-    fileNameEl.type = "button";
-    addClasses(fileNameEl, ["btn", "btn-dark", "btn-file"]);
-    fileNameEl.dataset.type = "file";
-    fileNameEl.dataset.href = data.filePath;
+    const col2 = document.createElement("tr");
+    col2.innerText = representBytes(data.size);
+    columns.push(col2);
 
-    const fileIcon = generateFAIcon("fa-file-o");
+    const col3 = document.createElement("td");
+    col3.innerText = data.name;
+    columns.push(col3);
 
-    fileNameEl.appendChild(fileIcon);
-    fileNameEl.append(data.name);
-    domEl.appendChild(fileNameEl);
+    columns.push(document.createElement("td"));
 
-    fileNameEl.addEventListener("contextmenu", e => {
+    columns.forEach(col => {
+        tr.appendChild(col);
+    });
+
+    tr.addEventListener("contextmenu", e => {
         e.preventDefault();
-        const origin = {
+        data.contextMenu.setPosition({
             left: e.clientX,
             top: e.clientY
-        };
-        data.contextMenu.setPosition(origin);
+        });
         data.contextMenu.clear();
         setupContextMenu(data.contextMenu, e);
         return false;
     });
 
-    fileNameEl.addEventListener("click", () => {
-        browser.openTab(data.fileOpenHref);
-    });
-
-    return domEl;
-};
+    return tr;
+}
 
 export async function loadElementsIn(path){
     const elements = await makeApiCall({
@@ -119,6 +120,7 @@ export function showFolderContent(elements, contextMenu){
             filePath: `${CURRENT_PATH}/${file.name}`,
             fileOpenHref: `/storage/file/${USERNAME}/${CURRENT_PATH}/${file.name}`,
             name: file.name,
+            size: file.size,
             contextMenu
         }));
     });

@@ -1,15 +1,10 @@
-.files-container, .folders-container{
-    display: flex;
-    flex-wrap: wrap;
-    padding: 10px;
+
+.file-el{
+    transition: background-color 0.2s;
 }
 
-.file-card{
-    padding: 10px;
-    margin: 10px;
-    width: 200px;
-    border: 1px solid #616161;
-    border-radius: 10px;
+.file-el:hover{
+    background-color: var(--light);
 }
 
 .btn-download{
@@ -20,6 +15,3 @@
     margin: 10px;
 }
 
-.placeholder{
-    height: 200px;
-}
