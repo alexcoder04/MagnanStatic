@@ -31,7 +31,7 @@ function createFolderEl(data){
         };
         data.contextMenu.clear();
         data.contextMenu.setPosition(origin);
-        setupContextMenu(data.contextMenu, e);
+        setupContextMenu(data.contextMenu, { type: "folder", href: data.href });
         return false;
     });
 
@@ -39,23 +39,25 @@ function createFolderEl(data){
 }
 
 function createFileEl(data){
-    console.log(data);
     const tr = document.createElement("tr");
     tr.classList.add("file-el");
+    tr.dataset.type = "file";
+    tr.dataset.href = data.fileOpenHref;
+
     let columns = [];
 
     const col1 = document.createElement("td");
     const imgEl = document.createElement("img");
-    imgEl.setAttribute("width", "100px"); imgEl.setAttribute("height", "100px");
-    if (data.isImage){
+    imgEl.setAttribute("width", "50px"); imgEl.setAttribute("height", "50px");
+    if (data.type == "image"){
         imgEl.src = data.thumbnailHref;
     } else {
-        imgEl.src = `${STATIC_SERVER}img/file.png`;
+        imgEl.src = `${STATIC_SERVER}img/file_${data.type}.png`;
     }
     col1.appendChild(imgEl);
     columns.push(col1);
 
-    const col2 = document.createElement("tr");
+    const col2 = document.createElement("td");
     col2.innerText = representBytes(data.size);
     columns.push(col2);
 
@@ -63,7 +65,9 @@ function createFileEl(data){
     col3.innerText = data.name;
     columns.push(col3);
 
-    columns.push(document.createElement("td"));
+    const col4 = document.createElement("td");
+    col4.innerText = new Date(data.lastModified * 1000).toLocaleString();
+    columns.push(col4);
 
     columns.forEach(col => {
         tr.appendChild(col);
@@ -76,7 +80,7 @@ function createFileEl(data){
             top: e.clientY
         });
         data.contextMenu.clear();
-        setupContextMenu(data.contextMenu, e);
+        setupContextMenu(data.contextMenu, { type: "file", href: data.fileOpenHref });
         return false;
     });
 
@@ -115,12 +119,13 @@ export function showFolderContent(elements, contextMenu){
     });
     elements.files.forEach(file => {
         elementsListEl.appendChild(createFileEl({
-            isImage: file.is_image,
-            thumbnailHref: (file.is_image ? `/storage/thumbnail/${USERNAME}/${CURRENT_PATH}/${file.name}` : null),
+            type: file.type,
+            thumbnailHref: (file.type == "image" ? `/storage/thumbnail/${USERNAME}/${CURRENT_PATH}/${file.name}` : null),
             filePath: `${CURRENT_PATH}/${file.name}`,
-            fileOpenHref: `/storage/file/${USERNAME}/${CURRENT_PATH}/${file.name}`,
+            fileOpenHref: `${CURRENT_PATH}/${file.name}`,
             name: file.name,
             size: file.size,
+            lastModified: file.last_modified,
             contextMenu
         }));
     });
