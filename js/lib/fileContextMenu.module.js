@@ -22,7 +22,7 @@ async function getLinkFor(href){
 export default function setupContextMenu(contextmenu, data){
     contextmenu.addEntry("Open", (
         data.type == "file" ?
-        () => { browser.openTab(`/storage/file/${data.href}`); }:
+        () => { browser.openTab(`/storage/file/${USERNAME}/${data.href}`); }:
         () => { browser.loadPage(`/mystuff/${data.href}`); }
     ));
     contextmenu.addEntry("Share", () => {
@@ -130,19 +130,14 @@ export default function setupContextMenu(contextmenu, data){
     contextmenu.addEntry("Delete", () => {
         setupModal({
             title: "Confirm your action",
-            text: `Do you really want to delete ${event.target.innerText}?`,
+            text: `Do you really want to delete ${data.name}?`,
             onconfirm: async () => {
-                const data = {
-                    user: USERNAME,
-                    path: (
-                        data.type == "file" ?
-                        `${event.target.data.href}`:
-                        data.href
-                    )
-                };
                 const res = await makeApiCall({
                     route: "storage/delete/" + data.type,
-                    body: data
+                    body: {
+                        user: USERNAME,
+                        path: data.href
+                    }
                 });
                 const folderContent = await loadElementsIn(CURRENT_PATH);
                 showFolderContent(folderContent, contextmenu);

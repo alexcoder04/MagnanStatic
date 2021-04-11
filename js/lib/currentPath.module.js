@@ -12,7 +12,7 @@ export default function showCurrentPath(){
         addClasses(domEl, ["btn", "btn-dark"]);
         domEl.role = "button";
         domEl.href = `/mystuff${pathPart}`;
-        domEl.innerText = el.replace("%20", " ") + " ";
+        domEl.innerText = el.replaceAll("%20", " ") + " ";
         domEl.appendChild(generateFAIcon("fa-folder-open-o"));
         folderPathContainer.appendChild(domEl);
         folderPathContainer.appendChild(generateFAIcon("fa-chevron-right"));

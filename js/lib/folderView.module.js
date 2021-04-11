@@ -31,7 +31,7 @@ function createFolderEl(data){
         };
         data.contextMenu.clear();
         data.contextMenu.setPosition(origin);
-        setupContextMenu(data.contextMenu, { type: "folder", href: data.href });
+        setupContextMenu(data.contextMenu, { type: "folder", href: data.href, name: data.name });
         return false;
     });
 
@@ -80,7 +80,7 @@ function createFileEl(data){
             top: e.clientY
         });
         data.contextMenu.clear();
-        setupContextMenu(data.contextMenu, { type: "file", href: data.fileOpenHref });
+        setupContextMenu(data.contextMenu, { type: "file", href: data.fileOpenHref, name: data.name });
         return false;
     });
 
